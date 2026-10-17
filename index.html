@@ -2226,8 +2226,21 @@ const World = {
       }, k * 330 + rand(0, 120));
     }
   },
-  update(dt, t) {
+  adaptQuality(dt) { // drop the render resolution on GPUs that can't hold ~36 fps
+    G.realT = (G.realT || 0) + dt;
+    if (G.realT < 4) return; // ignore shader-compile hitches right after loading
+    G.qT = (G.qT || 0) + dt; G.qN = (G.qN || 0) + 1;
+    if (G.qT < 2.5) return;
+    const avg = G.qT / G.qN; G.qT = 0; G.qN = 0;
+    const pr = G.renderer.getPixelRatio();
+    if (avg > 0.028 && pr > 1) {
+      const next = Math.max(1, pr - 0.25);
+      G.renderer.setPixelRatio(next); G.renderer.setSize(innerWidth, innerHeight, false); G.uPR.value = next;
+    }
+  },
+  update(dt, t, rawDt) {
     if (!this.ok) return;
+    this.adaptQuality(rawDt || dt);
     G.uTime.value = t;
     const cam = G.camera, V = G.V;
     for (const p of G.planets) updatePlanet(p, dt, t);
@@ -4209,9 +4222,9 @@ function boot() {
   });
   let last = performance.now(), t = 0;
   const frame = now => {
-    const dt = Math.min(0.05, Math.max(0, (now - last) / 1000));
+    const raw = Math.max(0, (now - last) / 1000), dt = Math.min(0.05, raw);
     last = now; t += dt;
-    try { World.update(dt, t); } catch (e) { console.error(e); World.ok = false; }
+    try { World.update(dt, t, Math.min(raw, 0.25)); } catch (e) { console.error(e); World.ok = false; }
     if (Panel.toy) Panel.toy.frame(dt);
     HUD.tick(dt);
     Supercharge.tick(dt);
