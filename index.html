@@ -690,7 +690,7 @@ const PLANETS = [
       violated: `A student memorizes all 200 answers from last year's test word-for-word, then freezes when the teacher changes a single number.`
     },
     recallA: {
-      q: `How do you know if you REALLY understand a messy science topic, using Kolmogorov Complexity?`,
+      q: `How do you know if you really understand a messy science topic using Kolmogorov Complexity?`,
       options: [
         { t: `You can explain the core recipe in one short sentence that predicts how new cases will behave.`, ok: true, why: `Exactly! A short rule that predicts NEW cases is proof you found the pattern, not just the data.` },
         { t: `You can recite every page of the textbook from memory.`, ok: false, why: `That's storing raw coordinates — huge memory, zero compression. Memorizing isn't the same as finding the rule.` },
@@ -750,7 +750,7 @@ const PLANETS = [
       violated: `A team keeps buying the $15,000 valve for years because "that's what valves cost" — and never once asks what the steel inside is worth.`
     },
     recallA: {
-      q: `You're hunting for a product to reinvent. Which item has the highest Idiot Index and is ripest for disruption?`,
+      q: `You are looking for a product to reinvent. Which item has the highest Idiot Index and is ripest for disruption?`,
       options: [
         { t: `A $500 plastic medical bracket made from $0.50 worth of melted plastic pellets.`, ok: true, why: `Bingo! $500 ÷ $0.50 = an Idiot Index of 1,000x. That gap is pure opportunity.` },
         { t: `A $40 gold ring made from $35 of gold.`, ok: false, why: `Index ≈ 1.1x — the price is already close to its atom cost. There's almost no bloat to remove.` },
@@ -1630,11 +1630,11 @@ const PLANET_LOOKS = [
   function fractal(R, spin, group) {
     const mats = [];
     const geo = new THREE.DodecahedronGeometry(R, 1);
-    const pal = ['#10b981', '#34d399', '#059669', '#6ee7b7', '#a3e635'].map(h => new THREE.Color(h));
+    const pal = ['#16c172', '#0ea85f', '#2bd67b', '#7be495', '#b5f26b'].map(h => new THREE.Color(h));
     facetColors(geo, (c, v, f) => c.copy(pal[(f * 5 + (v.y > 0 ? 1 : 0)) % pal.length]));
-    const mat = std({ vertexColors: true, roughness: 0.35, metalness: 0.1, emissive: new THREE.Color('#047857'), emissiveIntensity: 0.32, envMap: G.env, envMapIntensity: 0.4 });
+    const mat = std({ vertexColors: true, roughness: 0.4, metalness: 0.05, emissive: new THREE.Color('#0b7a3e'), emissiveIntensity: 0.3, envMap: G.env, envMapIntensity: 0.25 });
     mats.push(mat); spin.add(new THREE.Mesh(geo, mat));
-    const bumpMat = std({ color: '#6ee7b7', emissive: new THREE.Color('#10b981'), emissiveIntensity: 0.38, roughness: 0.3 });
+    const bumpMat = std({ color: '#4fdc8e', emissive: new THREE.Color('#15a34a'), emissiveIntensity: 0.32, roughness: 0.4 });
     const tinyMat = std({ color: '#ecfccb', emissive: new THREE.Color('#84cc16'), emissiveIntensity: 0.5, roughness: 0.3 });
     mats.push(bumpMat, tinyMat);
     const g1 = new THREE.DodecahedronGeometry(R * 0.3, 0), g2 = new THREE.DodecahedronGeometry(R * 0.1, 0);
@@ -1834,14 +1834,14 @@ function updatePlanet(p, dt, t) {
     p.superRing.rotation.z += dt * 0.8; p.superRing2.rotation.z -= dt * 0.6;
     p.superGlow.material.opacity = sa * (0.3 + 0.3 * pulse);
   }
-  p.starGroup.rotation.y += dt * 0.7;
   for (let k = 0; k < 3; k++) {
-    const m = p.stars[k];
+    const m = p.stars[k], a = t * 0.7 + (k / 3) * Math.PI * 2;
     if (k < p.starCount) {
       m.visible = true; p.starT[k] = Math.min(1, p.starT[k] + dt * 1.8);
       m.scale.setScalar(Math.max(0.001, Ease.outBack(p.starT[k])));
     } else m.visible = false;
-    m.rotation.y += dt * 2; m.position.y = Math.sin(t * 2 + k * 2) * 0.15;
+    m.position.set(Math.cos(a) * p.R * 0.62, Math.sin(t * 2 + k * 2) * 0.15, Math.sin(a) * p.R * 0.62);
+    m.quaternion.copy(G.camera.quaternion); m.rotateZ(Math.sin(t * 2.2 + k) * 0.35);
   }
 }
 
